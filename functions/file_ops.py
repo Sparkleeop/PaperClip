@@ -1,20 +1,36 @@
 from tkinter.filedialog import askopenfilename, asksaveasfilename
-from tkinter import END
+from tkinter import END, messagebox
 import os
+import json
 
 file = None
+LAST_FILE = "last_file.json"
 
-def newFile(root, TextArea, update_line_numbers, update_statusbar):
+def newFile(root, TextArea, update_line_numbers, update_statusbar, app=None):
     global file
+    if app and getattr(app, "text_modified", False):
+        if not _prompt_save(root, TextArea, app):
+            return
     root.title("Untitled - PaperClip by Sparklee")
     file = None
     TextArea.delete(1.0, END)
     update_line_numbers()
     update_statusbar()
+    if app:
+        app.text_modified = False
 
-def openFile(root, TextArea, update_line_numbers, update_statusbar):
+def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, path=None):
     global file
-    file = askopenfilename(defaultextension=".txt", filetypes=[("All files", "*.*"), ("Text Documents", "*.txt")])
+    if app and getattr(app, "text_modified", False):
+        if not _prompt_save(root, TextArea, app):
+            return
+
+    if path is None:
+        file = askopenfilename(defaultextension=".txt",
+                               filetypes=[("All files", "*.*"), ("Text Documents", "*.txt")])
+    else:
+        file = path
+
     if not file:
         file = None
         return
@@ -24,19 +40,28 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar):
     with open(file, "r", encoding="utf-8", errors="replace") as f:
         TextArea.insert(1.0, f.read())
 
+    save_last_file(file)  # Save last file path
+
     update_line_numbers()
     update_statusbar()
+    if app:
+        app.text_modified = False
 
-def saveFile(root, TextArea):
+def saveFile(root, TextArea, app=None):
     global file
     if file is None:
-        return saveasFile(root, TextArea)
-    
+        return saveasFile(root, TextArea, app)
+
     with open(file, "w", encoding="utf-8") as f:
         f.write(TextArea.get(1.0, END))
     root.title(os.path.basename(file) + " - PaperClip by Sparklee")
 
-def saveasFile(root, TextArea):
+    save_last_file(file)  # Save last file path
+
+    if app:
+        app.text_modified = False
+
+def saveasFile(root, TextArea, app=None):
     global file
     file = asksaveasfilename(initialfile="Untitled.txt", defaultextension=".txt",
                              filetypes=[("All files", "*.*"), ("Text Documents", "*.txt")])
@@ -46,5 +71,42 @@ def saveasFile(root, TextArea):
         f.write(TextArea.get("1.0", "end-1c"))
     root.title(f"{file} - PaperClip by Sparklee")
 
-def quitApp(root):
+    save_last_file(file)  # Save last file path
+
+    if app:
+        app.text_modified = False
+
+def quitApp(root, TextArea=None, app=None):
+    if app and getattr(app, "text_modified", False):
+        if not _prompt_save(root, TextArea, app):
+            return
     root.destroy()
+
+def _prompt_save(root, TextArea, app):
+    """Prompt the user to save unsaved changes. Returns True if continue, False if canceled."""
+    response = messagebox.askyesnocancel(
+        "Unsaved Changes",
+        "You have unsaved changes. Do you want to save before continuing?"
+    )
+    if response is None:  # Cancel
+        return False
+    elif response:  # Yes
+        saveFile(root, TextArea, app)
+    return True
+
+def save_last_file(path):
+    try:
+        with open(LAST_FILE, "w") as f:
+            json.dump({"last_file": path}, f)
+    except Exception as e:
+        print(f"Error saving last file: {e}")
+
+def load_last_file():
+    try:
+        if os.path.exists(LAST_FILE):
+            with open(LAST_FILE, "r") as f:
+                data = json.load(f)
+                return data.get("last_file")
+    except Exception as e:
+        print(f"Error loading last file: {e}")
+    return None

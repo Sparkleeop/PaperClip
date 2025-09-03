@@ -9,8 +9,8 @@ CONFIG_FILE = "plugins.json"
 # ---------------- PluginContext Class ----------------
 class PluginContext:
     def __init__(self):
-        self.menu_items = []   # Store menu indices
-        self.bindings = []     # Store widget bindings
+        self.menu_items = []   # store tuples (menu, index)
+        self.bindings = []     # store widget bindings
 
     def track_binding(self, widget, sequence, func):
         widget.bind(sequence, func)
@@ -39,6 +39,22 @@ def save_loaded_plugin(filepath):
     except Exception as e:
         print("Error saving plugin:", e)
 
+def _patch_add_command(menu, context):
+    """Patch a menu to track items added by plugins."""
+    original_add_command = menu.add_command
+
+    def tracked_add_command(*args, **kwargs):
+        index = menu.index("end")
+        if index is None:
+            index = 0
+        else:
+            index += 1
+        context.menu_items.append((menu, index))
+        original_add_command(*args, **kwargs)
+
+    menu.add_command = tracked_add_command
+    return original_add_command
+
 def _load_plugin_file(filepath, app):
     plugin_name = os.path.basename(filepath)[:-3]
     spec = importlib.util.spec_from_file_location(plugin_name, filepath)
@@ -49,7 +65,19 @@ def _load_plugin_file(filepath, app):
     plugin_contexts[plugin_name] = context
 
     if hasattr(module, "on_load"):
-        module.on_load(app, context)  # Pass context so plugin can track menu items/bindings
+        # Patch all main menus of the app to track plugin items
+        original_methods = []
+        for menu_attr in ["FileMenu", "EditMenu", "ExtensionsMenu", "HelpMenu"]:
+            if hasattr(app, menu_attr):
+                menu = getattr(app, menu_attr)
+                original_methods.append((menu, _patch_add_command(menu, context)))
+
+        # Call plugin
+        module.on_load(app, context)
+
+        # Restore original methods
+        for menu, original_add in original_methods:
+            menu.add_command = original_add
 
     plugins[plugin_name] = module
 
@@ -81,16 +109,17 @@ def unload_plugins(app, clear_saved=True):
             try:
                 module.on_unload(app, context)
             except TypeError:
-                # fallback if plugin only accepts app
                 module.on_unload(app)
 
-        # Remove menu items added by plugin
+        # Remove all menu items added by plugin
         if context:
-            for i in reversed(context.menu_items):
-                try:
-                    app.FileMenu.delete(i)
-                except Exception:
-                    pass
+            for item in reversed(context.menu_items):
+                if isinstance(item, tuple) and len(item) == 2:
+                    menu, index = item
+                    try:
+                        menu.delete(index)
+                    except Exception:
+                        pass
             context.unbind_all()
 
         # Remove module from memory
