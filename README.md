@@ -1,74 +1,80 @@
-# ![logo](assets/icon.png) PaperClip
+# <img src="assets/icon.png" alt="PaperClip Logo" width="50"/> PaperClip
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white) 
-![Tkinter](https://img.shields.io/badge/GUI-Tkinter-orange) 
-![License](https://img.shields.io/badge/License-MIT-green) 
-![Status](https://img.shields.io/badge/Project-Active-success) 
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python\&logoColor=white)
+![Tkinter](https://img.shields.io/badge/GUI-Tkinter-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Project-Active-success)
 ![Contributions](https://img.shields.io/badge/Contributions-Welcome-brightgreen)
 
-PaperClip is an open-source **dark mode text editor** built with [Tkinter](https://docs.python.org/3/library/tkinter.html).  
-It’s a lightweight, minimal alternative to Notepad — with line numbers, a status bar, and a clean dark UI.
+PaperClip is an open-source, dark mode text editor built with [Tkinter](https://docs.python.org/3/library/tkinter.html). It is designed to be a lightweight, minimal alternative to traditional text editors like Notepad, providing essential editing features with a modern interface.
 
 ---
 
-## ✨ Features
-- 📝 Create, open, save, and edit text files
-- 📂 Save As support with UTF-8 encoding
-- 🔢 Line numbers with auto-resize (works for large files too)
-- 🌙 Modern **dark mode** UI
-- 📋 Cut, copy, and paste
-- ℹ️ Simple "About" dialog
-- 📊 Status bar (UTF-8 encoding + Windows CRLF indicator)
-- 🖱️ Smooth scrolling with synced line numbers
+## Features
+
+* **File Operations:** Create, open, save, and save as text files with UTF-8 encoding
+* **Editor Interface:** Line numbers with automatic resizing, smooth scrolling, and synced line numbers
+* **Dark Mode UI:** Modern and clean interface optimized for extended usage
+* **Edit Operations:** Cut, copy, paste, and standard keyboard shortcuts
+* **Status Bar:** Displays line and word count, encoding, and line ending type
+* **About Dialog:** Simple information window about the application
+* **Extensibility:** Load and unload plugins/extensions dynamically for custom features
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Requirements
-- Python **3.8+**
-- Tkinter (comes pre-installed with Python on most systems)
 
-### Run PaperClip
+* Python **3.8+**
+* Tkinter (usually pre-installed with Python)
+
+### Installation and Running
+
 ```bash
-git clone https://github.com/yourusername/PaperClip.git
+git clone https://github.com/Sparkleeop/PaperClip.git
 cd PaperClip
 python paperclip.py
-````
+```
 
 ---
 
-## 📷 Screenshots
+## Plugin/Extension System
 
-*(Add your screenshots here once ready)*
+PaperClip supports dynamic plugins to extend functionality. Plugins can:
 
----
+* Add new menu items
+* Create keyboard shortcuts
+* Modify the editor interface or behavior
 
-## 🛠️ Roadmap / To-Do
+Plugins are loaded at runtime and can be unloaded without restarting the application. The plugin system tracks menu items and keybindings for proper cleanup.
 
-* [ ] Syntax highlighting
-* [ ] Customizable themes
-* [ ] Tabbed editing
-* [ ] Search & replace
-* [ ] Auto-save
+Example plugin features include:
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-Feel free to **fork** the repo, create a branch, and submit a pull request.
+* Highlighting specific words in the editor
+* Adding custom text transformations
+* Adding utility dialogs
 
 ---
 
-## 📜 License
+## Contributing
+
+Contributions are welcome. To contribute:
+
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
+
+Please follow standard Git workflow and provide descriptive commit messages.
+
+---
+
+## License
 
 PaperClip is released under the **MIT License** — free to use, modify, and distribute.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
-Made with ❤️ by **Sparklee**
-
-```
+Developed by **Sparklee**
