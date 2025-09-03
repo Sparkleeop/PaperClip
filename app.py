@@ -1,103 +1,153 @@
-import customtkinter as ctk
-from tkinter import filedialog, END, Menu
+from tkinter import *
+from tkinter.messagebox import showinfo
+from tkinter.filedialog import askopenfilename, asksaveasfilename
+import os
 
-# App setup
-ctk.set_appearance_mode("dark")   
-ctk.set_default_color_theme("blue")  
+def newFile():
+    global file
+    root.title("Untitled - PaperClip by Sparklee")
+    file = None
+    TextArea.delete(1.0, END)
 
-app = ctk.CTk()
-app.title("*Unsaved - PaperClip by Sparklee")
-app.geometry("1200x600")
-app.minsize(width=300, height=250)
+def openFile():
+    global file
 
-# Track current file
-open_status_name = None
+    file = askopenfilename(defaultextension = ".txt", filetypes=[("All files", "*.*"), ("Text Documents", "*.txt")])
 
-# --- File Functions ---
-def new_file():
-    global open_status_name
-    text.delete("1.0", END)
-    app.title("New File - PaperClip by Sparklee")
-    status_label.configure(text="New file")
-    open_status_name = None
-
-def open_file():
-    global open_status_name
-    file_path = filedialog.askopenfilename(
-        filetypes=[("Text Files", "*.txt"), ("HTML Files", "*.html"), ("Python Files", "*.py")],
-        title="Open File"
-    )
-    if not file_path:
-        return
-
-    with open(file_path, "r") as f:
-        content = f.read()
-
-    text.delete("1.0", END)
-    text.insert(END, content)
-
-    open_status_name = file_path
-    app.title(f"{file_path} - PaperClip by Sparklee")
-    status_label.configure(text=f"Opened: {file_path}")
-
-def saveas_file():
-    global open_status_name
-    file_path = filedialog.asksaveasfilename(
-        defaultextension=".txt",
-        filetypes=[("Text Files", "*.txt"), ("HTML Files", "*.html"), ("Python Files", "*.py"), ("All Files", "*.*")],
-        title="Save File"
-    )
-    if not file_path:
-        return
-
-    with open(file_path, "w") as f:
-        f.write(text.get("1.0", "end-1c"))
-
-    open_status_name = file_path
-    app.title(f"{file_path} - PaperClip by Sparklee")
-    status_label.configure(text=f"Saved: {file_path}")
-
-def save_file():
-    global open_status_name
-    if open_status_name:
-        with open(open_status_name, "w") as f:
-            f.write(text.get("1.0", "end-1c"))
-        status_label.configure(text=f"Saved: {open_status_name}")
+    if file == "":
+        file = None
     else:
-        saveas_file()
+        root.title(os.path.basename(file) + "- PaperClip by Sparklee")
+        TextArea.delete(1.0, END)
 
-# --- UI Setup ---
-# Menu bar (classic Notepad style)
-menu_bar = Menu(app)
+        f = open(file, "r")
+        TextArea.insert(1.0,f.read())
 
-# File menu
-file_menu = Menu(menu_bar, tearoff=0)
-file_menu.add_command(label="New", command=new_file)
-file_menu.add_command(label="Open...", command=open_file)
-file_menu.add_command(label="Save", command=save_file)
-file_menu.add_command(label="Save As...", command=saveas_file)
-file_menu.add_separator()
-file_menu.add_command(label="Exit", command=app.quit)
-menu_bar.add_cascade(label="File", menu=file_menu)
+        f.close()
 
-# You can add Edit/Help menus later if you want
-app.config(menu=menu_bar)
+def saveFile():
+    global file
+    if file == None:
+        file = asksaveasfilename(initialfile = "Untitled.txt",defaultextension = ".txt", filetypes=[("All files", "*.*"), ("Text Documents", "*.txt")])
 
-# Main frame for textbox
-frame = ctk.CTkFrame(app)
-frame.pack(pady=5, expand=True, fill="both")
+        if file == "":
+            file = None
 
-# Textbox with scrollbar
-text = ctk.CTkTextbox(
-    frame, wrap="word",
-    font=("Consolas", 14),
-    activate_scrollbars=True
-)
-text.pack(expand=True, fill="both", padx=10, pady=10)
+        else:
+            #Save it as a New File
+            f = open(file, "w")
+            f.write(TextArea.get(1.0, END))
+            f.close()
 
-# Bottom status bar
-status_label = ctk.CTkLabel(app, text="Ready", anchor="e")
-status_label.pack(fill="x", side="bottom", pady=2)
+            root.title(os.path.basename(file) + " - PaperClip by Sparklee")
+    else:
+        f = open(file, "w")
+        f.write(TextArea.get(1.0, END))
+        f.close()
 
-# Run app
-app.mainloop()
+def saveasFile():
+    global file
+    file = asksaveasfilename(initialfile = "Untitled.txt",defaultextension = ".txt", filetypes=[("All files", "*.*"), ("Text Documents", "*.txt")])
+
+    if file == "":
+        file = None
+
+    with open(file, "w") as f:
+        f.write(TextArea.get("1.0", "end-1c"))
+    root.title(f"{file} - PaperClip by Sparklee")
+
+    f.close()
+
+
+
+def quitApp():
+    root.destroy()
+
+def cut():
+    TextArea.event_generate(("<<Cut>>"))
+
+def copy():
+    TextArea.event_generate(("<<Copy>>"))
+
+def paste():
+    TextArea.event_generate(("<<Paste>>"))
+
+def about():
+    showinfo("About PaperClip", "PaperClip by Sparklee")
+
+if __name__ == '__main__':
+
+    # ---------------- Basic tkinter setup ----------------
+    # Creating an instance of tkinter
+    root = Tk()
+    # Adding title
+    root.title("Untitled - PaperClip by Sparklee")
+    # Setting icon
+    root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/NotePAD/assets/notes.ico")
+    # Setting default size
+    root.geometry("1920x1080")
+    # Setting minimum size
+    root.minsize(600, 500)
+
+    # ---------------- Creating a Menu Bar ----------------
+    MenuBar = Menu(root)
+    root.config(menu = MenuBar)
+
+    # File Menu
+    FileMenu = Menu(MenuBar, tearoff = 0)
+    # To open a New File
+    FileMenu.add_command(label = "New", command = newFile)
+    # To open already existing File
+    FileMenu.add_command(label = "Open", command = openFile)
+    # To save the current file
+    FileMenu.add_command(label = "Save", command = saveFile)
+    # To save as the current file
+    FileMenu.add_command(label = "Save As", command = saveasFile)
+    # To add a seperating line
+    FileMenu.add_separator()
+    # To quit the notepad
+    FileMenu.add_command(label = "Exit", command = quitApp)
+
+    MenuBar.add_cascade(label = "File", menu = FileMenu)
+
+
+    # Edit Menu
+    EditMenu = Menu(MenuBar, tearoff = 0)
+    # To give a feature of Cut, Copy, Paste
+    EditMenu.add_command(label = "Cut", command = cut)
+    EditMenu.add_command(label = "Copy", command = copy)
+    EditMenu.add_command(label = "Paste", command = paste)
+
+    MenuBar.add_cascade(label = "Edit", menu = EditMenu)
+
+
+    # Help Menu
+    HelpMenu = Menu(MenuBar, tearoff = 0)
+    HelpMenu.add_command(label = "About PaperClip", command = about)
+
+    MenuBar.add_cascade(label = "Help", menu = HelpMenu)
+
+    # ---------------- Creating a Text Area ----------------
+    # Text area for writing text
+    TextArea = Text(root, font = "lucida 13")
+    file = None
+    TextArea.pack(expand = True, fill = BOTH)
+
+    # Adding Scrollbar using rules from tkinter
+    scroll = Scrollbar(TextArea)
+    scroll.pack(side = RIGHT, fill = Y)
+    scroll.config(command = TextArea.yview)
+    TextArea.config(yscrollcommand = scroll.set)
+
+    # ---------------- Creating a Bottom Status Bar ----------------
+    # line_col = StringVar()
+    # line_col.set("Ln 1, Col 1")
+
+    statusbar = Frame(root, bd=1, relief=SUNKEN)
+    statusbar.pack(side=BOTTOM, fill=X)
+
+    Label(statusbar, text="UTF-8", width=20).pack(side=RIGHT)
+    Label(statusbar, text="Windows(CRLF)", width=20).pack(side=RIGHT)
+    # Label(statusbar, textvariable=line_col, width=20).pack(side=RIGHT)
+
+    root.mainloop()
