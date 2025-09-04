@@ -30,26 +30,26 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, pa
         if not _prompt_save(root, TextArea, app):
             return
 
-    if path is None:
+    if path:
+        file = path
+    else:
         file = askopenfilename(defaultextension=".txt",
                                filetypes=[("All files", "*.*"), ("Text Documents", "*.txt")])
-    else:
-        file = path
+        if not file:
+            file = None
+            return
 
-    if not file:
-        file = None
-        return
-
+    # Update window title
     root.title(os.path.basename(file) + " - PaperClip by Sparklee")
     TextArea.delete(1.0, END)
     with open(file, "r", encoding="utf-8", errors="replace") as f:
         TextArea.insert(1.0, f.read())
 
-    save_last_file(file)
     update_line_numbers()
     update_statusbar()
     if app:
         app.text_modified = False
+        app.file = file  # Update app context
 
 def saveFile(root, TextArea, app=None):
     global file

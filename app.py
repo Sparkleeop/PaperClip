@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.messagebox import askyesno, showinfo
 import os
+import sys
 
 # Import modular functions
 from functions.file_ops import newFile, openFile, saveFile, saveasFile, quitApp, load_last_file
@@ -125,6 +126,14 @@ MenuBar.add_cascade(label="Help", menu=HelpMenu)
 
 # -------------------- App Instance --------------------
 app = AppContext(root, TextArea, ExtensionsMenu, FileMenu)
+
+if len(sys.argv) > 1:
+    path = sys.argv[1]
+    if os.path.exists(path):
+        try:
+            openFile(root, TextArea, update_line_numbers_func, update_statusbar_func, app, path=path)
+        except Exception as e:
+            print(f"Failed to open file from command line: {e}")
 
 # Load saved plugins
 load_saved_plugins(app)
