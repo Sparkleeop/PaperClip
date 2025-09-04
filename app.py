@@ -40,7 +40,7 @@ from functions.view_ops import toggle_fullscreen, exit_fullscreen
 from functions.statusbar import update_statusbar
 from functions.line_numbers import update_line_numbers
 from functions.plugins import load_plugins, unload_plugins, load_saved_plugins
-from functions.styling_ops import set_font, toggle_bold, toggle_italic, toggle_underline
+from functions.styling_ops import set_font, toggle_bold, toggle_italic, toggle_underline, apply_heading, set_alignment, set_text_color, set_highlight_color, toggle_bullet , toggle_numbered_list , handle_auto_bullet , clear_formatting
 
 # -------------------- Editor Frame --------------------
 editor_frame = Frame(root)
@@ -62,6 +62,7 @@ TextArea = Text(
 )
 TextArea.pack(side=LEFT, expand=True, fill=BOTH)
 TextArea.bind("<Control-BackSpace>", lambda e: delete_previous_word(TextArea))
+TextArea.bind("<Return>", lambda e: handle_auto_bullet(e, TextArea))
 
 # Scrollbar
 scroll = Scrollbar(editor_frame, command=TextArea.yview)
@@ -154,7 +155,6 @@ FileMenu.add_command(label="Exit", command=lambda: quitApp(root, TextArea, app))
 # Recent Files submenu
 RecentMenu = Menu(FileMenu, tearoff=0)
 FileMenu.add_cascade(label="Open Recent", menu=RecentMenu)
-FileMenu.add_separator()
 MenuBar.add_cascade(label="File", menu=FileMenu)
 
 def update_recent_menu():
@@ -183,7 +183,7 @@ EditMenu = Menu(MenuBar, tearoff=0)
 EditMenu.add_command(label="Cut", command=lambda: cut(TextArea))
 EditMenu.add_command(label="Copy", command=lambda: copy(TextArea))
 EditMenu.add_command(label="Paste", command=lambda: paste(TextArea))
-EditMenu.add_separator()
+
 MenuBar.add_cascade(label="Edit", menu=EditMenu)
 
 # Format Menu
@@ -192,6 +192,37 @@ FormatMenu.add_command(label="Font...", command=lambda: set_font(TextArea, app))
 FormatMenu.add_command(label="Bold", command=lambda: toggle_bold(TextArea, app))
 FormatMenu.add_command(label="Italic", command=lambda: toggle_italic(TextArea, app))
 FormatMenu.add_command(label="Underline", command=lambda: toggle_underline(TextArea, app))
+FormatMenu.add_separator()
+FormatMenu.add_command(label="Bulleted List", command=lambda: toggle_bullet(TextArea))
+FormatMenu.add_command(label="Numbered List", command=lambda: toggle_numbered_list(TextArea))
+FormatMenu.add_separator()
+
+# Headings submenu
+HeadingMenu = Menu(FormatMenu, tearoff=0)
+HeadingMenu.add_command(label="Heading 1", command=lambda: apply_heading(TextArea, 1, app))
+HeadingMenu.add_command(label="Heading 2", command=lambda: apply_heading(TextArea, 2, app))
+HeadingMenu.add_command(label="Heading 3", command=lambda: apply_heading(TextArea, 3, app))
+FormatMenu.add_cascade(label="Headings", menu=HeadingMenu)
+
+# Alignment submenu
+AlignMenu = Menu(FormatMenu, tearoff=0)
+AlignMenu.add_command(label="Left", command=lambda: set_alignment(TextArea, "left"))
+AlignMenu.add_command(label="Center", command=lambda: set_alignment(TextArea, "center"))
+AlignMenu.add_command(label="Right", command=lambda: set_alignment(TextArea, "right"))
+AlignMenu.add_command(label="Justify", command=lambda: set_alignment(TextArea, "justify"))
+FormatMenu.add_cascade(label="Alignment", menu=AlignMenu)
+
+# Colors submenu
+ColorMenu = Menu(FormatMenu, tearoff=0)
+ColorMenu.add_command(label="Text Color", command=lambda: set_text_color(TextArea))
+ColorMenu.add_command(label="Highlight Color", command=lambda: set_highlight_color(TextArea))
+FormatMenu.add_cascade(label="Colors", menu=ColorMenu)
+
+# Clear formatting option
+FormatMenu.add_separator()
+FormatMenu.add_command(label="Clear Formatting", command=lambda: clear_formatting(TextArea))
+
+# Add back to menubar
 MenuBar.add_cascade(label="Format", menu=FormatMenu)
 
 # Extensions Menu
@@ -199,7 +230,6 @@ ExtensionsMenu = Menu(MenuBar, tearoff=0)
 ExtensionsMenu.add_command(label="Load Extension...", command=lambda: load_plugins(app))
 ExtensionsMenu.add_command(label="Unload All Extensions", command=lambda: unload_plugins(app, clear_saved=True))
 MenuBar.add_cascade(label="Extensions", menu=ExtensionsMenu)
-ExtensionsMenu.add_separator()
 
 # Help Menu
 HelpMenu = Menu(MenuBar, tearoff=0)
