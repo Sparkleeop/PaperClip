@@ -5,9 +5,8 @@ import json
 
 file = None
 
-# ---------------- AppData Paths ----------------
-APP_DATA_DIR = os.path.join(os.getenv("APPDATA"), "PaperClip")
-os.makedirs(APP_DATA_DIR, exist_ok=True)
+# ---------------- Project-local Paths ----------------
+APP_DATA_DIR = os.path.join(os.path.dirname(__file__), "..")  # project root
 LAST_FILE = os.path.join(APP_DATA_DIR, "last_file.json")
 RECENT_FILES = os.path.join(APP_DATA_DIR, "recent_files.json")
 MAX_RECENT_FILES = 10
@@ -55,7 +54,8 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, pa
         TextArea.config(font=app.current_font)
         app.file = file  # Update app context
 
-    # Track as recent
+    # Track as recent + last opened
+    save_last_file(file)
     add_recent_file(file)
 
 def saveFile(root, TextArea, app=None):
@@ -93,7 +93,6 @@ def quitApp(root, TextArea=None, app=None):
 
 # ---------------- Internal Helpers ----------------
 def _prompt_save(root, TextArea, app):
-    """Prompt the user to save unsaved changes. Returns True if continue, False if canceled."""
     response = messagebox.askyesnocancel(
         "Unsaved Changes",
         "You have unsaved changes. Do you want to save before continuing?"
@@ -106,17 +105,22 @@ def _prompt_save(root, TextArea, app):
 
 def save_last_file(path):
     try:
-        with open(LAST_FILE, "w") as f:
+        with open(LAST_FILE, "w", encoding="utf-8") as f:
             json.dump({"last_file": path}, f)
+        print(f"[DEBUG] Saved last_file.json: {path}")
     except Exception as e:
         print(f"Error saving last file: {e}")
 
 def load_last_file():
     try:
         if os.path.exists(LAST_FILE):
-            with open(LAST_FILE, "r") as f:
+            with open(LAST_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data.get("last_file")
+                if isinstance(data, dict):
+                    return data.get("last_file")
+                else:
+                    # wrong type -> reset
+                    return None
     except Exception as e:
         print(f"Error loading last file: {e}")
     return None
@@ -135,6 +139,7 @@ def save_recent_files(files):
     try:
         with open(RECENT_FILES, "w", encoding="utf-8") as f:
             json.dump(files, f)
+        print(f"[DEBUG] Updated recent_files.json: {files}")
     except Exception as e:
         print(f"Error saving recent files: {e}")
 

@@ -22,3 +22,56 @@ def duplicate_line(TextArea):
     # Place cursor at start of duplicated line
     TextArea.mark_set("insert", next_line_start)
     TextArea.see("insert")
+
+# -------------------- File Operation Keybinds --------------------
+def bind_file_shortcuts(root, TextArea, update_line_numbers_func, update_statusbar_func, app,
+                        newFile, openFile, saveFile, saveasFile):
+
+    def _new_file(event=None):
+        newFile(root, TextArea, update_line_numbers_func, update_statusbar_func, app)
+        return "break"
+
+    def _open_file(event=None):
+        openFile(root, TextArea, update_line_numbers_func, update_statusbar_func, app)
+        return "break"
+
+    def _save_file(event=None):
+        saveFile(root, TextArea, app)
+        return "break"
+
+    def _saveas_file(event=None):
+        saveasFile(root, TextArea, app)
+        return "break"
+
+    def _undo(event=None):
+        try:
+            TextArea.edit_undo()
+        except Exception:
+            pass
+        return "break"
+
+    def _redo(event=None):
+        try:
+            TextArea.edit_redo()
+        except Exception:
+            pass
+        return "break"
+
+    # File key bindings
+    root.bind("<Control-n>", _new_file)
+    root.bind("<Control-o>", _open_file)
+    root.bind("<Control-s>", _save_file)
+    root.bind("<Control-Shift-S>", _saveas_file)  # Ctrl+Shift+S
+
+    # Undo/Redo bindings
+    root.bind("<Control-z>", _undo)
+    root.bind("<Control-Shift-Z>", _redo) # Ctrl+Shift+Z
+
+    return {
+        "new": _new_file,
+        "open": _open_file,
+        "save": _save_file,
+        "saveas": _saveas_file,
+        "undo": _undo,
+        "redo": _redo,
+    }

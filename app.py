@@ -19,7 +19,7 @@ root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/Note
 root.geometry("1280x720")
 root.minsize(600, 400)
 
-version = "1.2.1-Alpha"
+version = "1.2.2-Alpha"
 
 # Adjust scaling dynamically
 try:
@@ -41,7 +41,7 @@ from functions.statusbar import update_statusbar
 from functions.line_numbers import update_line_numbers
 from functions.plugins import load_plugins, unload_plugins, load_saved_plugins
 from functions.styling_ops import set_font, toggle_bold, toggle_italic, toggle_underline, apply_heading, set_alignment, set_text_color, set_highlight_color, toggle_bullet , toggle_numbered_list , handle_auto_bullet , clear_formatting
-from functions.key_actions import duplicate_line
+from functions.key_actions import duplicate_line, bind_file_shortcuts
 
 # -------------------- Editor Frame --------------------
 editor_frame = Frame(root)
@@ -53,15 +53,19 @@ line_numbers = Canvas(editor_frame, width=60, background="#252526", highlightthi
 line_numbers.pack(side=LEFT, fill=Y)
 
 # Main Text Area
-default_font_size = 13  # keep this consistent, DPI awareness handles scaling
+default_font_size = 13 
 TextArea = Text(
     editor_frame,
     font=("Arial", default_font_size),
     bg="#1e1e1e",
     fg="#d4d4d4",
-    insertbackground="white"
+    insertbackground="white",
+    undo=True,            
+    autoseparators=True,    
+    maxundo=-1              
 )
 TextArea.pack(side=LEFT, expand=True, fill=BOTH)
+
 TextArea.bind("<Control-BackSpace>", lambda e: delete_previous_word(TextArea))
 TextArea.bind("<Return>", lambda e: handle_auto_bullet(e, TextArea))
 
@@ -185,12 +189,27 @@ def clear_recent_files():
 # Initialize menu
 update_recent_menu()
 
+def safe_redo(text_widget):
+    try:
+        text_widget.edit_redo()
+    except Exception:
+        pass
+
 # Edit Menu
 EditMenu = Menu(MenuBar, tearoff=0)
-EditMenu.add_command(label="Cut", command=lambda: cut(TextArea))
-EditMenu.add_command(label="Copy", command=lambda: copy(TextArea))
-EditMenu.add_command(label="Paste", command=lambda: paste(TextArea))
 
+# Undo / Redo
+EditMenu.add_command(
+    label="Undo",
+    command=lambda: (TextArea.edit_undo() if TextArea.edit_modified() else None),
+    accelerator="Ctrl+Z"
+)
+
+EditMenu.add_command(label="Redo", command=lambda: safe_redo(TextArea), accelerator="Ctrl+Y")
+EditMenu.add_separator()
+EditMenu.add_command(label="Cut", command=lambda: cut(TextArea), accelerator="Ctrl+X")
+EditMenu.add_command(label="Copy", command=lambda: copy(TextArea), accelerator="Ctrl+C")
+EditMenu.add_command(label="Paste", command=lambda: paste(TextArea), accelerator="Ctrl+V")
 MenuBar.add_cascade(label="Edit", menu=EditMenu)
 
 # Format Menu
@@ -247,6 +266,9 @@ MenuBar.add_cascade(label="Help", menu=HelpMenu)
 # -------------------- App Instance --------------------
 app = AppContext(root, TextArea, ExtensionsMenu, FileMenu)
 
+bind_file_shortcuts(root, TextArea, update_line_numbers_func, update_statusbar_func,
+                    app, newFile, openFile, saveFile, saveasFile)
+
 if len(sys.argv) > 1:
     path = sys.argv[1]
     if os.path.exists(path):
@@ -254,12 +276,14 @@ if len(sys.argv) > 1:
             openFile(root, TextArea, update_line_numbers_func, update_statusbar_func, app, path=path)
         except Exception as e:
             print(f"Failed to open file from command line: {e}")
+else:
+    last_file = load_last_file()
+    if last_file and os.path.exists(last_file):
+        openFile(root, TextArea, update_line_numbers_func, update_statusbar_func, app, path=last_file)
 
 # Load saved plugins
 load_saved_plugins(app)
-last_file = load_last_file()
-if last_file and os.path.exists(last_file):
-    openFile(root, TextArea, update_line_numbers_func, update_statusbar_func, app, path=last_file)
+
 
 # -------------------- Status Bar --------------------
 statusbar = Frame(root, bd=1, relief=SUNKEN, bg="#2d2d30")
