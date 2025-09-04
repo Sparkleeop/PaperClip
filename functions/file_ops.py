@@ -23,6 +23,7 @@ def newFile(root, TextArea, update_line_numbers, update_statusbar, app=None):
     update_statusbar()
     if app:
         app.text_modified = False
+        TextArea.config(font=app.current_font)
 
 def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, path=None):
     global file
@@ -49,6 +50,7 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, pa
     update_statusbar()
     if app:
         app.text_modified = False
+        TextArea.config(font=app.current_font)
         app.file = file  # Update app context
 
 def saveFile(root, TextArea, app=None):

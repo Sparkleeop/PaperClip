@@ -10,6 +10,7 @@ from functions.view_ops import toggle_fullscreen, exit_fullscreen
 from functions.statusbar import update_statusbar
 from functions.line_numbers import update_line_numbers
 from functions.plugins import load_plugins, unload_plugins, load_saved_plugins
+from functions.styling_ops import set_font, toggle_bold, toggle_italic, toggle_underline
 
 # -------------------- Initialize Tkinter --------------------
 root = Tk()
@@ -17,6 +18,8 @@ root.title("Untitled - PaperClip by Sparklee")
 root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/NotePAD/assets/icon.ico")
 root.geometry("854x480")
 root.minsize(600, 400)
+
+version = "1.2.0-Alpha"
 
 # -------------------- Editor Frame --------------------
 editor_frame = Frame(root)
@@ -60,6 +63,23 @@ TextArea.bind("<Configure>", combined_update)
 TextArea.bind("<<Change>>", combined_update)
 TextArea.bind("<Expose>", combined_update)
 
+# Styling keybindings
+def toggle_bold_event(event):
+    toggle_bold(TextArea, app)
+    return "break"
+
+def toggle_italic_event(event):
+    toggle_italic(TextArea, app)
+    return "break"
+
+def toggle_underline_event(event):
+    toggle_underline(TextArea, app)
+    return "break"
+
+TextArea.bind("<Control-b>", toggle_bold_event)
+TextArea.bind("<Control-i>", toggle_italic_event)
+TextArea.bind("<Control-u>", toggle_underline_event)
+
 # Scroll wiring
 def _on_scrollbar(*args):
     TextArea.yview(*args)
@@ -88,6 +108,7 @@ class AppContext:
         self.ExtensionsMenu = extensions_menu
         self.FileMenu = file_menu
         self.text_modified = False
+        self.current_font = ("Arial", 13)
 
 # -------------------- Menu Bar --------------------
 MenuBar = Menu(root)
@@ -112,6 +133,14 @@ EditMenu.add_command(label="Paste", command=lambda: paste(TextArea))
 EditMenu.add_separator()
 MenuBar.add_cascade(label="Edit", menu=EditMenu)
 
+# Format Menu
+FormatMenu = Menu(MenuBar, tearoff=0)
+FormatMenu.add_command(label="Font...", command=lambda: set_font(TextArea, app))
+FormatMenu.add_command(label="Bold", command=lambda: toggle_bold(TextArea, app))
+FormatMenu.add_command(label="Italic", command=lambda: toggle_italic(TextArea, app))
+FormatMenu.add_command(label="Underline", command=lambda: toggle_underline(TextArea, app))
+MenuBar.add_cascade(label="Format", menu=FormatMenu)
+
 # Extensions Menu
 ExtensionsMenu = Menu(MenuBar, tearoff=0)
 ExtensionsMenu.add_command(label="Load Extension...", command=lambda: load_plugins(app))
@@ -122,6 +151,7 @@ ExtensionsMenu.add_separator()
 # Help Menu
 HelpMenu = Menu(MenuBar, tearoff=0)
 HelpMenu.add_command(label="About PaperClip", command=lambda: showinfo("About PaperClip", "PaperClip by Sparklee"))
+HelpMenu.add_command(label="Version info", command=lambda: showinfo("Version", version))
 MenuBar.add_cascade(label="Help", menu=HelpMenu)
 
 # -------------------- App Instance --------------------
