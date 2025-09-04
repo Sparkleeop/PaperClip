@@ -72,7 +72,19 @@ Please follow standard Git workflow and provide descriptive commit messages.
 
 ## License
 
-PaperClip is released under the **MIT License**, free to use, modify, and distribute
+PaperClip – Personal Use License
+
+Copyright (c) 2025 Sparklee
+
+You are granted permission to:
+- Use PaperClip on your personal devices.
+- Modify the code for personal use.
+
+You MAY NOT:
+- Redistribute PaperClip, modified or unmodified, to others.
+- Sell, sublicense, or use PaperClip commercially without explicit permission.
+
+All rights not explicitly granted are reserved.
 
 ---
 
