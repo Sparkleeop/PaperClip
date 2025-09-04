@@ -1,10 +1,40 @@
-from tkinter import *
-from tkinter.messagebox import askyesno, showinfo
 import os
 import sys
+from tkinter import *
+from tkinter.messagebox import askyesno, showinfo
 
-# Import modular functions
-from functions.file_ops import newFile, openFile, saveFile, saveasFile, quitApp, load_last_file
+# ----------------- DPI / Scaling Fix -----------------
+if sys.platform == "win32":
+    try:
+        import ctypes
+        # Enable DPI awareness before Tk initializes
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)  # SYSTEM_DPI_AWARE
+    except Exception:
+        pass
+
+# -------------------- Initialize Tkinter --------------------
+root = Tk()
+root.title("Untitled - PaperClip by Sparklee")
+root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/NotePAD/assets/icon.ico")
+root.geometry("1280x720")
+root.minsize(600, 400)
+
+version = "1.2.0-Alpha"
+
+# Adjust scaling dynamically
+try:
+    scaling = root.winfo_fpixels('1i') / 72  # pixels per inch / 72 = scaling factor
+    root.tk.call('tk', 'scaling', scaling)
+except Exception:
+    root.tk.call('tk', 'scaling', 1.0)  # fallback
+
+try:
+    scaling = root.tk.call('tk', 'scaling')
+except Exception:
+    scaling = 1.0
+
+# -------------------- Imports for modular functions --------------------
+from functions.file_ops import newFile, openFile, saveFile, saveasFile, quitApp, load_last_file, load_recent_files, save_recent_files
 from functions.edit_ops import cut, copy, paste, delete_previous_word
 from functions.view_ops import toggle_fullscreen, exit_fullscreen
 from functions.statusbar import update_statusbar
@@ -12,25 +42,24 @@ from functions.line_numbers import update_line_numbers
 from functions.plugins import load_plugins, unload_plugins, load_saved_plugins
 from functions.styling_ops import set_font, toggle_bold, toggle_italic, toggle_underline
 
-# -------------------- Initialize Tkinter --------------------
-root = Tk()
-root.title("Untitled - PaperClip by Sparklee")
-root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/NotePAD/assets/icon.ico")
-root.geometry("854x480")
-root.minsize(600, 400)
-
-version = "1.2.0-Alpha"
-
 # -------------------- Editor Frame --------------------
 editor_frame = Frame(root)
 editor_frame.pack(expand=True, fill=BOTH)
+
 
 # Line Numbers
 line_numbers = Canvas(editor_frame, width=60, background="#252526", highlightthickness=0)
 line_numbers.pack(side=LEFT, fill=Y)
 
 # Main Text Area
-TextArea = Text(editor_frame, font="lucida 13", bg="#1e1e1e", fg="#d4d4d4", insertbackground="white")
+default_font_size = 13  # keep this consistent, DPI awareness handles scaling
+TextArea = Text(
+    editor_frame,
+    font=("Arial", default_font_size),
+    bg="#1e1e1e",
+    fg="#d4d4d4",
+    insertbackground="white"
+)
 TextArea.pack(side=LEFT, expand=True, fill=BOTH)
 TextArea.bind("<Control-BackSpace>", lambda e: delete_previous_word(TextArea))
 
@@ -108,7 +137,7 @@ class AppContext:
         self.ExtensionsMenu = extensions_menu
         self.FileMenu = file_menu
         self.text_modified = False
-        self.current_font = ("Arial", 13)
+        self.current_font = ("Arial", default_font_size)
 
 # -------------------- Menu Bar --------------------
 MenuBar = Menu(root)
@@ -122,8 +151,32 @@ FileMenu.add_command(label="Save", command=lambda: saveFile(root, TextArea, app)
 FileMenu.add_command(label="Save As", command=lambda: saveasFile(root, TextArea, app))
 FileMenu.add_separator()
 FileMenu.add_command(label="Exit", command=lambda: quitApp(root, TextArea, app))
+# Recent Files submenu
+RecentMenu = Menu(FileMenu, tearoff=0)
+FileMenu.add_cascade(label="Open Recent", menu=RecentMenu)
 FileMenu.add_separator()
 MenuBar.add_cascade(label="File", menu=FileMenu)
+
+def update_recent_menu():
+    RecentMenu.delete(0, END)
+    recent = load_recent_files()
+    if not recent:
+        RecentMenu.add_command(label="(No recent files)", state=DISABLED)
+    else:
+        for path in recent:
+            RecentMenu.add_command(
+                label=path,
+                command=lambda p=path: openFile(root, TextArea, update_line_numbers_func, update_statusbar_func, app, path=p)
+            )
+        RecentMenu.add_separator()
+        RecentMenu.add_command(label="Clear Recent", command=clear_recent_files)
+
+def clear_recent_files():
+    save_recent_files([])
+    update_recent_menu()
+
+# Initialize menu
+update_recent_menu()
 
 # Edit Menu
 EditMenu = Menu(MenuBar, tearoff=0)

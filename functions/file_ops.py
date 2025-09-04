@@ -9,6 +9,8 @@ file = None
 APP_DATA_DIR = os.path.join(os.getenv("APPDATA"), "PaperClip")
 os.makedirs(APP_DATA_DIR, exist_ok=True)
 LAST_FILE = os.path.join(APP_DATA_DIR, "last_file.json")
+RECENT_FILES = os.path.join(APP_DATA_DIR, "recent_files.json")
+MAX_RECENT_FILES = 10
 
 # ---------------- File Operations ----------------
 def newFile(root, TextArea, update_line_numbers, update_statusbar, app=None):
@@ -53,6 +55,9 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, pa
         TextArea.config(font=app.current_font)
         app.file = file  # Update app context
 
+    # Track as recent
+    add_recent_file(file)
+
 def saveFile(root, TextArea, app=None):
     global file
     if file is None:
@@ -62,6 +67,7 @@ def saveFile(root, TextArea, app=None):
         f.write(TextArea.get(1.0, END))
     root.title(os.path.basename(file) + " - PaperClip by Sparklee")
     save_last_file(file)
+    add_recent_file(file)
     if app:
         app.text_modified = False
 
@@ -75,6 +81,7 @@ def saveasFile(root, TextArea, app=None):
         f.write(TextArea.get("1.0", "end-1c"))
     root.title(f"{file} - PaperClip by Sparklee")
     save_last_file(file)
+    add_recent_file(file)
     if app:
         app.text_modified = False
 
@@ -113,3 +120,28 @@ def load_last_file():
     except Exception as e:
         print(f"Error loading last file: {e}")
     return None
+
+# ---------------- Recent Files ----------------
+def load_recent_files():
+    if os.path.exists(RECENT_FILES):
+        try:
+            with open(RECENT_FILES, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+def save_recent_files(files):
+    try:
+        with open(RECENT_FILES, "w", encoding="utf-8") as f:
+            json.dump(files, f)
+    except Exception as e:
+        print(f"Error saving recent files: {e}")
+
+def add_recent_file(path):
+    recent = load_recent_files()
+    if path in recent:
+        recent.remove(path)
+    recent.insert(0, path)
+    recent = recent[:MAX_RECENT_FILES]
+    save_recent_files(recent)
