@@ -4,8 +4,13 @@ import os
 import json
 
 file = None
-LAST_FILE = "last_file.json"
 
+# ---------------- AppData Paths ----------------
+APP_DATA_DIR = os.path.join(os.getenv("APPDATA"), "PaperClip")
+os.makedirs(APP_DATA_DIR, exist_ok=True)
+LAST_FILE = os.path.join(APP_DATA_DIR, "last_file.json")
+
+# ---------------- File Operations ----------------
 def newFile(root, TextArea, update_line_numbers, update_statusbar, app=None):
     global file
     if app and getattr(app, "text_modified", False):
@@ -40,8 +45,7 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, pa
     with open(file, "r", encoding="utf-8", errors="replace") as f:
         TextArea.insert(1.0, f.read())
 
-    save_last_file(file)  # Save last file path
-
+    save_last_file(file)
     update_line_numbers()
     update_statusbar()
     if app:
@@ -55,9 +59,7 @@ def saveFile(root, TextArea, app=None):
     with open(file, "w", encoding="utf-8") as f:
         f.write(TextArea.get(1.0, END))
     root.title(os.path.basename(file) + " - PaperClip by Sparklee")
-
-    save_last_file(file)  # Save last file path
-
+    save_last_file(file)
     if app:
         app.text_modified = False
 
@@ -70,9 +72,7 @@ def saveasFile(root, TextArea, app=None):
     with open(file, "w", encoding="utf-8") as f:
         f.write(TextArea.get("1.0", "end-1c"))
     root.title(f"{file} - PaperClip by Sparklee")
-
-    save_last_file(file)  # Save last file path
-
+    save_last_file(file)
     if app:
         app.text_modified = False
 
@@ -82,6 +82,7 @@ def quitApp(root, TextArea=None, app=None):
             return
     root.destroy()
 
+# ---------------- Internal Helpers ----------------
 def _prompt_save(root, TextArea, app):
     """Prompt the user to save unsaved changes. Returns True if continue, False if canceled."""
     response = messagebox.askyesnocancel(
