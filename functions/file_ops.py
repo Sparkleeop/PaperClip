@@ -19,11 +19,12 @@ def newFile(root, TextArea, update_line_numbers, update_statusbar, app=None):
             return
     root.title("Untitled - PaperClip by Sparklee")
     file = None
-    TextArea.delete(1.0, END)
+    TextArea.delete("1.0", "end")
     update_line_numbers()
     update_statusbar()
     if app:
         app.text_modified = False
+        app.saved_content = ""  # new file is empty, so saved content is blank
         TextArea.config(font=app.current_font)
 
 def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, path=None):
@@ -53,6 +54,7 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, pa
         app.text_modified = False
         TextArea.config(font=app.current_font)
         app.file = file  # Update app context
+        app.saved_content = TextArea.get("1.0", "end-1c")
 
     # Track as recent + last opened
     save_last_file(file)
@@ -70,6 +72,7 @@ def saveFile(root, TextArea, app=None):
     add_recent_file(file)
     if app:
         app.text_modified = False
+        app.saved_content = TextArea.get("1.0", "end-1c")
 
 def saveasFile(root, TextArea, app=None):
     global file
@@ -84,6 +87,7 @@ def saveasFile(root, TextArea, app=None):
     add_recent_file(file)
     if app:
         app.text_modified = False
+        app.saved_content = TextArea.get("1.0", "end-1c")
 
 def quitApp(root, TextArea=None, app=None):
     if app and getattr(app, "text_modified", False):
@@ -143,10 +147,29 @@ def save_recent_files(files):
     except Exception as e:
         print(f"Error saving recent files: {e}")
 
-def add_recent_file(path):
+def add_recent_file(path, recent_menu=None, root=None, TextArea=None, app=None):
     recent = load_recent_files()
     if path in recent:
         recent.remove(path)
     recent.insert(0, path)
     recent = recent[:MAX_RECENT_FILES]
     save_recent_files(recent)
+
+    if recent_menu and root and TextArea:
+        recent_menu.delete(0, 'end')
+        for p in recent:
+            recent_menu.add_command(
+                label=p,
+                command=lambda fp=p: openFile(root, TextArea, app=app, path=fp)
+            )
+        recent_menu.add_separator()
+        recent_menu.add_command(
+            label="Clear Recent",
+            command=lambda: clear_recent_files(recent_menu)
+        )
+
+def clear_recent_files(recent_menu):
+    save_recent_files([])
+    recent_menu.delete(0, 'end')
+    recent_menu.add_command(label="(No recent files)", state='disabled')
+

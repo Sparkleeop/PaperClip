@@ -19,7 +19,7 @@ root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/Note
 root.geometry("1280x720")
 root.minsize(600, 400)
 
-version = "1.2.4-Alpha"
+version = "1.2.5-Alpha"
 
 # Adjust scaling dynamically
 try:
@@ -83,7 +83,10 @@ def combined_update(event=None):
     update_statusbar_func()
 
 def on_text_modified(event=None):
-    app.text_modified = True
+    if TextArea.get("1.0", "end-1c") != app.saved_content:
+        app.text_modified = True
+    else:
+        app.text_modified = False
     combined_update(event)
 
 # -------------------- Wrapper Functions --------------------
@@ -159,6 +162,7 @@ class AppContext:
         self.FileMenu = file_menu
         self.text_modified = False
         self.current_font = ("Arial", default_font_size)
+        self.saved_content = text_area.get("1.0", "end-1c")
 
 # -------------------- Menu Bar --------------------
 MenuBar = Menu(root)
