@@ -13,11 +13,10 @@ PaperClip is an open-source, dark mode text editor built with [Tkinter](https://
 ## Features
 
 * **File Operations:** Create, open, save, and save as text files with UTF-8 encoding
-* **Editor Interface:** Line numbers with automatic resizing, smooth scrolling, and synced line numbers
+* **Editor Interface:** Line numbers, smooth scrolling, and synced line numbers
 * **Dark Mode UI:** Modern and clean interface optimized for extended usage
 * **Edit Operations:** Cut, copy, paste, and standard keyboard shortcuts
 * **Status Bar:** Displays line and word count, encoding, and line ending type
-* **About Dialog:** Simple information window about the application
 * **Extensibility:** Load and unload plugins/extensions dynamically for custom features
 
 ---
@@ -49,6 +48,8 @@ PaperClip supports dynamic plugins to extend functionality. Plugins can:
 
 Plugins are loaded at runtime and can be unloaded without restarting the application. The plugin system tracks menu items and keybindings for proper cleanup.
 
+You can find premade plugin [here](https://github.com/Sparkleeop/PaperClip-Extensions)
+
 Example plugin features include:
 
 * Highlighting specific words in the editor
@@ -71,7 +72,19 @@ Please follow standard Git workflow and provide descriptive commit messages.
 
 ## License
 
-PaperClip is released under the **MIT License** — free to use, modify, and distribute.
+PaperClip – Personal Use License
+
+Copyright (c) 2025 Sparklee
+
+You are granted permission to:
+- Use PaperClip on your personal devices.
+- Modify the code for personal use.
+
+You MAY NOT:
+- Redistribute PaperClip, modified or unmodified, to others.
+- Sell, sublicense, or use PaperClip commercially without explicit permission.
+
+All rights not explicitly granted are reserved.
 
 ---
 
