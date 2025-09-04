@@ -75,3 +75,10 @@ def bind_file_shortcuts(root, TextArea, update_line_numbers_func, update_statusb
         "undo": _undo,
         "redo": _redo,
     }
+
+def track_text_modifications(TextArea, app):
+    def on_modified(event):
+        app.text_modified = True
+        # Reset Tkinter's internal modified flag
+        TextArea.edit_modified(False)
+    TextArea.bind("<<Modified>>", on_modified)

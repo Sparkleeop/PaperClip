@@ -19,7 +19,7 @@ root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/Note
 root.geometry("1280x720")
 root.minsize(600, 400)
 
-version = "1.2.2-Alpha"
+version = "1.2.3-Alpha"
 
 # Adjust scaling dynamically
 try:
@@ -91,12 +91,19 @@ update_line_numbers_func = lambda e=None: update_line_numbers(TextArea, line_num
 update_statusbar_func = lambda e=None: update_statusbar(TextArea, lines_var, words_var, e)
 
 # Bindings
-TextArea.bind("<KeyRelease>", on_text_modified)
 TextArea.bind("<MouseWheel>", combined_update)
 TextArea.bind("<Button-1>", combined_update)
 TextArea.bind("<Configure>", combined_update)
 TextArea.bind("<<Change>>", combined_update)
 TextArea.bind("<Expose>", combined_update)
+
+def track_text_modifications(TextArea, app):
+    def on_modified(event):
+        app.text_modified = True
+        # Reset Tkinter's internal modified flag so <<Modified>> triggers again
+        TextArea.edit_modified(False)
+    TextArea.bind("<<Modified>>", on_modified)
+
 
 # Styling keybindings
 def toggle_bold_event(event):
@@ -265,6 +272,7 @@ MenuBar.add_cascade(label="Help", menu=HelpMenu)
 
 # -------------------- App Instance --------------------
 app = AppContext(root, TextArea, ExtensionsMenu, FileMenu)
+track_text_modifications(TextArea, app)
 
 bind_file_shortcuts(root, TextArea, update_line_numbers_func, update_statusbar_func,
                     app, newFile, openFile, saveFile, saveasFile)
