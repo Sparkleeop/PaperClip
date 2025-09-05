@@ -19,7 +19,7 @@ root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/Note
 root.geometry("1280x720")
 root.minsize(600, 400)
 
-version = "1.3.0-Alpha"
+version = "1.3.1-Alpha"
 
 # Adjust scaling dynamically
 try:

@@ -37,7 +37,7 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, pa
         file = path
     else:
         file = askopenfilename(defaultextension=".txt",
-                               filetypes=[("All files", "*.*"), ("Text Documents", "*.txt")])
+                               filetypes=[("All files", "*.*"), ("Text Documents", "*.txt"), ("Markdown Files", "*.md *.markdown *.mkd *.mdown")])
         if not file:
             file = None
             return
