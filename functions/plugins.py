@@ -67,7 +67,7 @@ def _load_plugin_file(filepath, app):
     if hasattr(module, "on_load"):
         # Patch all main menus of the app to track plugin items
         original_methods = []
-        for menu_attr in ["FileMenu", "EditMenu", "ExtensionsMenu", "HelpMenu"]:
+        for menu_attr in ["FileMenu", "EditMenu", "PluginsMenu", "HelpMenu"]:
             if hasattr(app, menu_attr):
                 menu = getattr(app, menu_attr)
                 original_methods.append((menu, _patch_add_command(menu, context)))

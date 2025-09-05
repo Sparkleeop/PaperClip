@@ -19,7 +19,7 @@ root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/Note
 root.geometry("1280x720")
 root.minsize(600, 400)
 
-version = "1.2.7-Alpha"
+version = "1.3.0-Alpha"
 
 # Adjust scaling dynamically
 try:
@@ -43,6 +43,7 @@ from functions.plugins import load_plugins, unload_plugins, load_saved_plugins
 from functions.styling_ops import set_font, toggle_bold, toggle_italic, toggle_underline, apply_heading, set_alignment, set_text_color, set_highlight_color, toggle_bullet , toggle_numbered_list , handle_auto_bullet , clear_formatting
 from functions.key_actions import duplicate_line, bind_file_shortcuts
 from functions.markdown_viewer import open_markdown_viewer
+from functions.themes import load_theme, load_saved_theme, unload_theme
 
 # -------------------- Editor Frame --------------------
 editor_frame = Frame(root)
@@ -191,10 +192,10 @@ update_line_numbers_func()
 
 # -------------------- App Context --------------------
 class AppContext:
-    def __init__(self, root, text_area, extensions_menu, file_menu):
+    def __init__(self, root, text_area, plugins_menu, file_menu):
         self.root = root
         self.TextArea = text_area
-        self.ExtensionsMenu = extensions_menu
+        self.PluginsMenu = plugins_menu
         self.FileMenu = file_menu
         self.text_modified = False
         self.current_font = ("Arial", default_font_size)
@@ -301,11 +302,23 @@ FormatMenu.add_command(label="Clear Formatting", command=lambda: clear_formattin
 # Add back to menubar
 MenuBar.add_cascade(label="Format", menu=FormatMenu)
 
-# Extensions Menu
-ExtensionsMenu = Menu(MenuBar, tearoff=0)
-ExtensionsMenu.add_command(label="Load Extension...", command=lambda: load_plugins(app))
-ExtensionsMenu.add_command(label="Unload All Extensions", command=lambda: unload_plugins(app, clear_saved=True))
-MenuBar.add_cascade(label="Extensions", menu=ExtensionsMenu)
+# Preferences Menu
+PreferencesMenu = Menu(MenuBar, tearoff=0)
+
+# Plugins Submenu
+PluginsMenu = Menu(PreferencesMenu, tearoff=0)
+PluginsMenu.add_command(label="Load Plugin...", command=lambda: load_plugins(app))
+PluginsMenu.add_command(label="Unload All Plugins", command=lambda: unload_plugins(app, clear_saved=True))
+PreferencesMenu.add_cascade(label="Plugins", menu=PluginsMenu)
+
+# Themes Submenu
+ThemesMenu = Menu(PreferencesMenu, tearoff=0)
+ThemesMenu.add_command(label="Load Theme...", command=lambda: load_theme(app))
+ThemesMenu.add_command(label="Unload Theme", command=lambda: unload_theme(app))
+PreferencesMenu.add_cascade(label="Themes", menu=ThemesMenu)
+
+# Add Preferences to main menu bar
+MenuBar.add_cascade(label="Preferences", menu=PreferencesMenu)
 
 # Help Menu
 HelpMenu = Menu(MenuBar, tearoff=0)
@@ -314,7 +327,7 @@ HelpMenu.add_command(label="Version info", command=lambda: showinfo("Version", v
 MenuBar.add_cascade(label="Help", menu=HelpMenu)
 
 # -------------------- App Instance --------------------
-app = AppContext(root, TextArea, ExtensionsMenu, FileMenu)
+app = AppContext(root, TextArea, PluginsMenu, FileMenu)
 track_text_modifications(TextArea, app, combined_update_func=combined_update)
 
 bind_file_shortcuts(root, TextArea, update_line_numbers_func, update_statusbar_func,
@@ -332,8 +345,9 @@ else:
     if last_file and os.path.exists(last_file):
         openFile(root, TextArea, update_line_numbers_func, update_statusbar_func, app, path=last_file)
 
-# Load saved plugins
+# Load saved plugins, themes
 load_saved_plugins(app)
+load_saved_theme(app)
 
 
 # -------------------- Status Bar --------------------
