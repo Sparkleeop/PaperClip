@@ -19,7 +19,7 @@ except Exception:
 # Simple dark-ish styling to match your editor
 _CSS = """
 <style>
-  body{font-family: -apple-system, Segoe UI, Arial, sans-serif; padding:16px; color:#d4d4d4;background:#1e1e1e;}
+  body{font-family: -apple-system, Segoe UI, Arial, sans-serif; padding:16px; color:#d4d4d4;background:#010606;}
   h1,h2,h3,h4{color:#ffffff}
   code, pre{background:#2d2d30; padding: 2px 4px; border-radius: 4px;}
   pre{padding: 10px; overflow:auto;}
@@ -47,7 +47,7 @@ def open_markdown_viewer(root: tk.Tk, text_widget: tk.Text, file_path: str = Non
 
     # Fallback: open in default browser (no live updates)
     if not _HAS_TKINTERWEB:
-        import tempfile, os, webbrowser
+        import tempfile, webbrowser
         doc = _render_html(text_widget.get("1.0", "end-1c"))
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".html", encoding="utf-8") as f:
             f.write(doc)
@@ -63,7 +63,7 @@ def open_markdown_viewer(root: tk.Tk, text_widget: tk.Text, file_path: str = Non
         win.title("Preview")
     win.geometry("900x700")
 
-    frame = HtmlFrame(win)
+    frame = HtmlFrame(win, messages_enabled=False)
     frame.pack(fill="both", expand=True)
 
     def render():
