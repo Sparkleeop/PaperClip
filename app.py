@@ -19,7 +19,7 @@ root.iconbitmap("C:/Users/User 1/OneDrive - Sellability PS/Documents/Sparsh/Note
 root.geometry("1280x720")
 root.minsize(600, 400)
 
-version = "1.2.5-Alpha"
+version = "1.2.6-Alpha"
 
 # Adjust scaling dynamically
 try:
@@ -74,6 +74,31 @@ scroll = Scrollbar(editor_frame, command=TextArea.yview)
 scroll.pack(side=RIGHT, fill=Y)
 TextArea.config(yscrollcommand=scroll.set)
 
+def on_mousewheel(event):
+    # Scroll text
+    TextArea.yview_scroll(int(-event.delta / 120), "units")
+
+    # Update line numbers + status bar
+    update_line_numbers_func()
+    update_statusbar_func()
+
+    return "break"
+
+def on_scrollbar(*args):
+    TextArea.yview(*args)
+    update_line_numbers_func()
+    update_statusbar_func()
+
+def on_text_yscroll(first, last):
+    scroll.set(first, last)
+    root.after_idle(lambda: (update_line_numbers_func(), update_statusbar_func()))
+
+# Wiring
+scroll.config(command=on_scrollbar)
+TextArea.config(yscrollcommand=on_text_yscroll)
+TextArea.bind("<MouseWheel>", on_mousewheel)
+
+
 # -------------------- Update Functions --------------------
 lines_var = StringVar(value="Lines: 1")
 words_var = StringVar(value="Words: 0")
@@ -83,31 +108,48 @@ def combined_update(event=None):
     update_statusbar_func()
 
 def on_text_modified(event=None):
-    if TextArea.get("1.0", "end-1c") != app.saved_content:
-        app.text_modified = True
-    else:
-        app.text_modified = False
+    current_content = TextArea.get("1.0", "end-1c")
+    app.text_modified = (current_content != getattr(app, "saved_content", ""))
     combined_update(event)
+
 
 # -------------------- Wrapper Functions --------------------
 update_line_numbers_func = lambda e=None: update_line_numbers(TextArea, line_numbers, e)
 update_statusbar_func = lambda e=None: update_statusbar(TextArea, lines_var, words_var, e)
 
 # Bindings
-TextArea.bind("<MouseWheel>", combined_update)
 TextArea.bind("<Button-1>", combined_update)
 TextArea.bind("<Configure>", combined_update)
 TextArea.bind("<<Change>>", combined_update)
 TextArea.bind("<Expose>", combined_update)
 
 def track_text_modifications(TextArea, app, combined_update_func=None):
+    """
+    Bind to <<Modified>> and set app.text_modified only when the
+    content actually differs from app.saved_content.
+    """
     def on_modified(event):
-        app.text_modified = True
-        # Update line numbers / status bar if provided
-        if combined_update_func:
-            combined_update_func()
-        # Reset Tkinter's internal modified flag
+        # Only proceed if Tk says it's modified
+        if not TextArea.edit_modified():
+            return
+
+        # Read current buffer (trim the trailing newline)
+        current_content = TextArea.get("1.0", "end-1c")
+        saved_content = getattr(app, "saved_content", "")
+
+        # Determine new dirty state
+        is_dirty = (current_content != saved_content)
+
+        # Only update & refresh UI when state actually changes
+        if app.text_modified != is_dirty:
+            app.text_modified = is_dirty
+            if combined_update_func:
+                combined_update_func()
+
+        # Reset Tkinter's internal modified flag so next real edit fires again
         TextArea.edit_modified(False)
+
+    # Bind the improved handler
     TextArea.bind("<<Modified>>", on_modified)
 
 # Styling keybindings
@@ -125,13 +167,13 @@ def toggle_underline_event(event):
 
 def _dup_line_event(e):
     duplicate_line(TextArea)
-    return "break"  # IMPORTANT: stop default behavior
-
+    return "break" 
 
 TextArea.bind("<Control-d>", _dup_line_event)
 TextArea.bind("<Control-b>", toggle_bold_event)
 TextArea.bind("<Control-i>", toggle_italic_event)
 TextArea.bind("<Control-u>", toggle_underline_event)
+TextArea.bind("<KeyRelease>", combined_update)
 
 # Scroll wiring
 def _on_scrollbar(*args):
@@ -142,14 +184,8 @@ def _on_text_yscroll(first, last):
     scroll.set(first, last)
     root.after_idle(update_line_numbers_func)
 
-def _on_mousewheel(event):
-    TextArea.yview_scroll(int(-event.delta/120), "units")
-    update_line_numbers_func()
-    return "break"
-
 scroll.config(command=_on_scrollbar)
 TextArea.config(yscrollcommand=_on_text_yscroll)
-TextArea.bind("<MouseWheel>", _on_mousewheel)
 
 update_line_numbers_func()
 
