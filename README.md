@@ -6,88 +6,127 @@
 ![Status](https://img.shields.io/badge/Project-Active-success)
 ![Contributions](https://img.shields.io/badge/Contributions-Welcome-brightgreen)
 
-PaperClip is an open-source, dark mode text editor built with [Tkinter](https://docs.python.org/3/library/tkinter.html). It is designed to be a lightweight, minimal alternative to traditional text editors like Notepad, providing essential editing features with a modern interface.
+**PaperClip** is an open-source, dark-mode text editor built with [Tkinter](https://docs.python.org/3/library/tkinter.html).
+It’s designed as a lightweight yet powerful alternative to Notepad, featuring plugins, themes, markdown preview, and a modern interface.
 
 ---
 
-## Features
+## ✨ Features
 
-* **File Operations:** Create, open, save, and save as text files with UTF-8 encoding
-* **Editor Interface:** Line numbers, smooth scrolling, and synced line numbers
-* **Dark Mode UI:** Modern and clean interface optimized for extended usage
-* **Edit Operations:** Cut, copy, paste, and standard keyboard shortcuts
-* **Status Bar:** Displays line and word count, encoding, and line ending type
-* **Extensibility:** Load and unload plugins/extensions dynamically for custom features
+* **File Management**
+
+  * New, Open, Save, Save As
+  * Open Recent (with clear history)
+  * Exit confirmation for unsaved changes
+* **Editor Interface**
+
+  * Line numbers synced with text
+  * Smooth scrolling
+  * Word & line counter in status bar
+  * UTF-8 encoding & line ending display
+* **Markdown Support**
+
+  * Live Markdown viewer with one click
+* **Editing Tools**
+
+  * Cut, copy, paste, undo, redo
+  * Duplicate line (Ctrl+D)
+  * Delete previous word (Ctrl+Backspace)
+* **Rich Formatting**
+
+  * Font picker
+  * Bold, italic, underline
+  * Headings (H1–H3)
+  * Alignment (left, center, right, justify)
+  * Text color & highlight color
+  * Bullet & numbered lists
+  * Clear formatting option
+* **Customization**
+
+  * Dynamic **plugins** (load/unload without restart)
+  * Theme support (load/unload & save theme)
+* **UI & Experience**
+
+  * Modern dark mode by default
+  * Scales correctly on high-DPI Windows displays
+  * Fullscreen toggle (F11 / Esc)
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Requirements
 
 * Python **3.8+**
-* Tkinter (usually pre-installed with Python)
+* Tkinter (usually included with Python)
 
-### Installation and Running
+### Installation & Run
 
 ```bash
 git clone https://github.com/Sparkleeop/PaperClip.git
 cd PaperClip
-python paperclip.py
+python app.py
 ```
 
 ---
 
-## Plugin/Extension System
+## 🧩 Plugins
 
-PaperClip supports dynamic plugins to extend functionality. Plugins can:
+PaperClip supports dynamic plugins:
 
 * Add new menu items
-* Create keyboard shortcuts
-* Modify the editor interface or behavior
+* Create custom shortcuts
+* Modify editor behavior or UI
 
-Plugins are loaded at runtime and can be unloaded without restarting the application. The plugin system tracks menu items and keybindings for proper cleanup.
+Plugins can be loaded/unloaded at runtime, and the system ensures cleanup of menus and keybindings.
+You can find premade plugins [here](https://github.com/Sparkleeop/PaperClip-Extensions).
 
-You can find premade plugin [here](https://github.com/Sparkleeop/PaperClip-Extensions)
+Examples:
 
-Example plugin features include:
-
-* Highlighting specific words in the editor
-* Adding custom text transformations
-* Adding utility dialogs
+* Highlight words
+* Text transformations
+* Utility dialogs
 
 ---
 
-## Contributing
+## 🎨 Themes
 
-Contributions are welcome. To contribute:
+PaperClip includes a theme system:
 
-1. Fork the repository
+* Load custom `.json` theme files
+* Unload/reset to default
+* Saved theme auto-loads on next startup
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repo
 2. Create a feature branch
-3. Submit a pull request
-
-Please follow standard Git workflow and provide descriptive commit messages.
+3. Submit a PR with clear commit messages
 
 ---
 
-## License
+## 📜 License
 
 PaperClip – Personal Use License
 
 Copyright (c) 2025 Sparklee
 
-You are granted permission to:
-- Use PaperClip on your personal devices.
-- Modify the code for personal use.
+You may:
 
-You MAY NOT:
-- Redistribute PaperClip, modified or unmodified, to others.
-- Sell, sublicense, or use PaperClip commercially without explicit permission.
+* Use PaperClip on your devices
+* Modify the code for personal use
 
-All rights not explicitly granted are reserved.
+You may **not**:
+
+* Redistribute or sell PaperClip
+* Use it commercially without permission
 
 ---
 
-## Author
+## 👤 Author
 
 Developed by **Sparklee**
