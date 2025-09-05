@@ -56,6 +56,10 @@ def openFile(root, TextArea, update_line_numbers, update_statusbar, app=None, pa
         app.file = file  # Update app context
         app.saved_content = TextArea.get("1.0", "end-1c")
 
+        # Check if this file is Markdown and toggle menu accordingly
+        from functions.file_ops import check_markdown_file
+        check_markdown_file(file, app.FileMenu)
+
     # Track as recent + last opened
     save_last_file(file)
     add_recent_file(file)
@@ -173,3 +177,9 @@ def clear_recent_files(recent_menu):
     recent_menu.delete(0, 'end')
     recent_menu.add_command(label="(No recent files)", state='disabled')
 
+def check_markdown_file(path, FileMenu):
+    is_md = path.lower().endswith((".md", ".markdown", ".mkd", ".mdown"))
+    try:
+        FileMenu.entryconfig("View Live Markdown", state="normal" if is_md else "disabled")
+    except Exception:
+        pass

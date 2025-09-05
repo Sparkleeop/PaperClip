@@ -34,7 +34,7 @@ except Exception:
     scaling = 1.0
 
 # -------------------- Imports for modular functions --------------------
-from functions.file_ops import newFile, openFile, saveFile, saveasFile, quitApp, load_last_file, load_recent_files, save_recent_files
+from functions.file_ops import newFile, openFile, saveFile, saveasFile, quitApp, load_last_file, load_recent_files, save_recent_files, check_markdown_file
 from functions.edit_ops import cut, copy, paste, delete_previous_word
 from functions.view_ops import toggle_fullscreen, exit_fullscreen
 from functions.statusbar import update_statusbar
@@ -42,6 +42,7 @@ from functions.line_numbers import update_line_numbers
 from functions.plugins import load_plugins, unload_plugins, load_saved_plugins
 from functions.styling_ops import set_font, toggle_bold, toggle_italic, toggle_underline, apply_heading, set_alignment, set_text_color, set_highlight_color, toggle_bullet , toggle_numbered_list , handle_auto_bullet , clear_formatting
 from functions.key_actions import duplicate_line, bind_file_shortcuts
+from functions.markdown_viewer import open_markdown_viewer
 
 # -------------------- Editor Frame --------------------
 editor_frame = Frame(root)
@@ -97,7 +98,6 @@ def on_text_yscroll(first, last):
 scroll.config(command=on_scrollbar)
 TextArea.config(yscrollcommand=on_text_yscroll)
 TextArea.bind("<MouseWheel>", on_mousewheel)
-
 
 # -------------------- Update Functions --------------------
 lines_var = StringVar(value="Lines: 1")
@@ -215,6 +215,7 @@ FileMenu.add_command(label="Exit", command=lambda: quitApp(root, TextArea, app))
 # Recent Files submenu
 RecentMenu = Menu(FileMenu, tearoff=0)
 FileMenu.add_cascade(label="Open Recent", menu=RecentMenu)
+FileMenu.add_command(label="View Live Markdown", command=lambda: open_markdown_viewer(root, TextArea, getattr(app, "file", None)), state="disabled")
 MenuBar.add_cascade(label="File", menu=FileMenu)
 
 def update_recent_menu():
