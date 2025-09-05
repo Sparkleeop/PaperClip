@@ -99,6 +99,16 @@ PaperClip includes a theme system:
 
 ---
 
+## 📸 Screenshots
+
+<img width="1915" height="1119" alt="Screenshot 2025-09-06 000600" src="https://github.com/user-attachments/assets/536e7c98-54b7-4c05-bc43-7b7e206283d3" /><br>
+
+<img width="1919" height="1129" alt="Screenshot 2025-09-06 000748" src="https://github.com/user-attachments/assets/4ab0b183-b80e-42ea-bca0-c5abfd3ae0bc" /><br>
+
+<img width="142" height="76" alt="Screenshot 2025-09-06 000544" src="https://github.com/user-attachments/assets/a4dbbec2-f812-4d1b-8b88-cf44afe5bd7b" /><br>
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome!
